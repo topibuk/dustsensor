@@ -3,6 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
+#include "driver/gpio.h"
 
 #define PIN_RX GPIO_NUM_16
 #define PIN_TX GPIO_NUM_17

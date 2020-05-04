@@ -95,9 +95,8 @@ static void dust_sensor_task()
         if (result >= 0)
         {
             dump_data(b);
+            vTaskDelay(10000 / portTICK_PERIOD_MS);
         }
-
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
     }
 }
 

@@ -71,6 +71,8 @@ static void dust_sensor_task()
                                0x01,
                                0x70};
 
+    // 0x42 + 0x4D + 0xE1 + 0x00 + 0x00 + 0x01 = 0x170 = 0x1 << 8 + 0x70
+
     uart_write_bytes(UART_NUM_2, (const char *)cmd_passive_mode, 7);
 
     for (;;)
@@ -83,6 +85,8 @@ static void dust_sensor_task()
                            0x00,
                            0x01,
                            0x71};
+
+        // 0x42 + 0x4D + 0xE2 + 0x00 + 0x00 + 0x01 = 0x171 = 0x1 << 8 + 0x71
 
         uart_write_bytes(UART_NUM_2, (const char *)cmd_read, 7);
 

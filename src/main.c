@@ -4,6 +4,7 @@
 #include "freertos/task.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
+#include "esp_log.h"
 
 #define PIN_RX GPIO_NUM_16
 #define PIN_TX GPIO_NUM_17
@@ -12,10 +13,27 @@
 
 #define BUF_SIZE UART_FIFO_LEN * 2
 
-char data[] = "Heartbeat\n";
+typedef struct DustSens_data
+{
+    uint16_t pm01_consentration_standard;
+    uint16_t pm25_consentration_standard;
+    uint16_t pm10_consentration_standard;
+    uint16_t pm01_consentration_atmo;
+    uint16_t pm25_consentration_atmo;
+    uint16_t pm10_consentration_atmo;
+    uint16_t part_number03;
+    uint16_t part_number05;
+    uint16_t part_number10;
+    uint16_t part_number25;
+    uint16_t part_number50;
+    uint16_t part_number100;
+} DustSens_t;
+
+DustSens_t dust_mesurement;
 
 void dump_data(const uint8_t *data)
 {
+    ESP_LOGI("test", "dumping data");
     char message[100];
     uint16_t current_value;
     for (int i = 0; i < 16; i++)
@@ -26,6 +44,28 @@ void dump_data(const uint8_t *data)
     }
     sprintf(message, "\n");
     uart_write_bytes(UART_NUM_0, (const char *)message, strlen(message));
+}
+
+void parse_data(const uint8_t *data, uint8_t length)
+{
+
+    if (length != 32)
+    {
+        return;
+    }
+
+    dust_mesurement.pm01_consentration_standard = (data[4] << 8) + data[5];
+    dust_mesurement.pm25_consentration_standard = (data[6] << 8) + data[7];
+    dust_mesurement.pm10_consentration_standard = (data[8] << 8) + data[9];
+    dust_mesurement.pm01_consentration_atmo = (data[10] << 8) + data[11];
+    dust_mesurement.pm25_consentration_atmo = (data[12] << 8) + data[13];
+    dust_mesurement.pm10_consentration_atmo = (data[14] << 8) + data[15];
+    dust_mesurement.part_number03 = (data[16] << 8) + data[17];
+    dust_mesurement.part_number05 = (data[18] << 8) + data[19];
+    dust_mesurement.part_number10 = (data[20] << 8) + data[21];
+    dust_mesurement.part_number25 = (data[22] << 8) + data[23];
+    dust_mesurement.part_number50 = (data[24] << 8) + data[25];
+    dust_mesurement.part_number100 = (data[26] << 8) + data[27];
 }
 
 static void dust_sensor_task()

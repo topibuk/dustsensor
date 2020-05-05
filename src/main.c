@@ -36,7 +36,7 @@ DustSens_t dust_mesurement;
 
 SemaphoreHandle_t dust_semaphore;
 
-void parse_data(const uint8_t *data, uint8_t length)
+void parse_dust_data(const uint8_t *data, uint8_t length)
 {
 
     if (length != 32)
@@ -125,7 +125,7 @@ static void dust_sensor_task()
 
         if (result >= 0)
         {
-            parse_data(b, 32);
+            parse_dust_data(b, 32);
             vTaskDelay(10000 / portTICK_PERIOD_MS);
         }
     }

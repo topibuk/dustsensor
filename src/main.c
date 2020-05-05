@@ -11,6 +11,8 @@
 #define PIN_RTS UART_PIN_NO_CHANGE
 #define PIN_CTS UART_PIN_NO_CHANGE
 
+#define LOG_TAG "main"
+
 #define BUF_SIZE UART_FIFO_LEN * 2
 
 typedef struct DustSens_data
@@ -30,21 +32,6 @@ typedef struct DustSens_data
 } DustSens_t;
 
 DustSens_t dust_mesurement;
-
-void dump_data(const uint8_t *data)
-{
-    ESP_LOGI("test", "dumping data");
-    char message[100];
-    uint16_t current_value;
-    for (int i = 0; i < 16; i++)
-    {
-        current_value = (data[i * 2] << 8) + (data[i * 2 + 1]);
-        sprintf(message, " %05u", current_value);
-        uart_write_bytes(UART_NUM_0, (const char *)message, strlen(message));
-    }
-    sprintf(message, "\n");
-    uart_write_bytes(UART_NUM_0, (const char *)message, strlen(message));
-}
 
 void parse_data(const uint8_t *data, uint8_t length)
 {
@@ -66,6 +53,12 @@ void parse_data(const uint8_t *data, uint8_t length)
     dust_mesurement.part_number25 = (data[22] << 8) + data[23];
     dust_mesurement.part_number50 = (data[24] << 8) + data[25];
     dust_mesurement.part_number100 = (data[26] << 8) + data[27];
+
+    ESP_LOGI(LOG_TAG, "pm 2.5 atmo concentration is %05d", dust_mesurement.pm25_consentration_atmo);
+    ESP_LOGI(LOG_TAG, "pm 10  atmo concentration is %05d", dust_mesurement.pm10_consentration_atmo);
+
+    ESP_LOGI(LOG_TAG, "pm 2.5 stan concentration is %05d", dust_mesurement.pm25_consentration_standard);
+    ESP_LOGI(LOG_TAG, "pm 10  stan concentration is %05d", dust_mesurement.pm10_consentration_standard);
 }
 
 static void dust_sensor_task()

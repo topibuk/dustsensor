@@ -2,6 +2,7 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
@@ -33,12 +34,19 @@ typedef struct DustSens_data
 
 DustSens_t dust_mesurement;
 
+SemaphoreHandle_t dust_semaphore;
+
 void parse_data(const uint8_t *data, uint8_t length)
 {
 
     if (length != 32)
     {
         return;
+    }
+
+    while (xSemaphoreTake(dust_semaphore, 100 / portTICK_PERIOD_MS) != pdTRUE)
+    {
+        ESP_LOGE(LOG_TAG, "can't get lock on dust_semaphore");
     }
 
     dust_mesurement.pm01_consentration_standard = (data[4] << 8) + data[5];
@@ -59,6 +67,8 @@ void parse_data(const uint8_t *data, uint8_t length)
 
     ESP_LOGI(LOG_TAG, "pm 2.5 stan concentration is %05d", dust_mesurement.pm25_consentration_standard);
     ESP_LOGI(LOG_TAG, "pm 10  stan concentration is %05d", dust_mesurement.pm10_consentration_standard);
+
+    xSemaphoreGive(dust_semaphore);
 }
 
 static void dust_sensor_task()
@@ -123,5 +133,8 @@ static void dust_sensor_task()
 
 void app_main()
 {
+    dust_semaphore = xSemaphoreCreateBinary();
+    xSemaphoreGive(dust_semaphore);
+
     xTaskCreate(dust_sensor_task, "dust_sensor_task", 1024, NULL, 10, NULL);
 }

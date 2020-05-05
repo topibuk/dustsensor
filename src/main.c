@@ -73,15 +73,6 @@ static void dust_sensor_task()
     /*
     This is a PMS 7003 procedure
     */
-    uart_config_t out_config = {
-
-        .baud_rate = 115200,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
-
-    };
 
     uart_config_t in_config = {
 
@@ -93,12 +84,8 @@ static void dust_sensor_task()
 
     };
 
-    uart_param_config(UART_NUM_0, &out_config);
     uart_param_config(UART_NUM_2, &in_config);
-
     uart_set_pin(UART_NUM_2, PIN_TX, PIN_RX, PIN_RTS, PIN_CTS);
-
-    uart_driver_install(UART_NUM_0, BUF_SIZE, 0, 0, NULL, 0);
     uart_driver_install(UART_NUM_2, BUF_SIZE, BUF_SIZE, 0, NULL, 0);
 
     uint8_t b[100];

@@ -11,6 +11,8 @@
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "secrets.h"
+#include "mqtt_client.h"
+#include "stdatomic.h"
 
 #define PIN_RX GPIO_NUM_16
 #define PIN_TX GPIO_NUM_17
@@ -23,27 +25,13 @@
 
 #define WIFI_CONNECT_MAXIMUM_RETRY 100
 
-typedef struct DustSens_data
-{
-    uint16_t pm01_consentration_standard;
-    uint16_t pm25_consentration_standard;
-    uint16_t pm10_consentration_standard;
-    uint16_t pm01_consentration_atmo;
-    uint16_t pm25_consentration_atmo;
-    uint16_t pm10_consentration_atmo;
-    uint16_t part_number03;
-    uint16_t part_number05;
-    uint16_t part_number10;
-    uint16_t part_number25;
-    uint16_t part_number50;
-    uint16_t part_number100;
-} DustSens_t;
-
-DustSens_t dust_mesurement;
-
 SemaphoreHandle_t dust_semaphore;
 
 uint8_t wifi_connect_retry_counter;
+
+atomic_char mqtt_connected = 0;
+
+esp_mqtt_client_handle_t mqtt_client;
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
@@ -55,7 +43,10 @@ static EventGroupHandle_t s_wifi_event_group;
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT BIT1
 
-void parse_dust_data(const uint8_t *data, uint8_t length)
+char pm25_topic[100];
+char pm100_topic[100];
+
+void publish_dust_data(const uint8_t *data, uint8_t length)
 {
 
     if (length != 32)
@@ -63,31 +54,25 @@ void parse_dust_data(const uint8_t *data, uint8_t length)
         return;
     }
 
-    while (xSemaphoreTake(dust_semaphore, 100 / portTICK_PERIOD_MS) != pdTRUE)
+    uint16_t pm25 = (data[12] << 8) + data[13];
+    uint16_t pm100 = (data[14] << 8) + data[15];
+
+    ESP_LOGD(LOG_TAG, "pm 2.5 atmo concentration is %05d", pm25);
+    ESP_LOGD(LOG_TAG, "pm 10  atmo concentration is %05d", pm100);
+
+    if (mqtt_connected)
     {
-        ESP_LOGE(LOG_TAG, "can't get lock on dust_semaphore");
+        int msg_id;
+        char value[10];
+
+        sprintf(value, "%d", pm25);
+        msg_id = esp_mqtt_client_publish(mqtt_client, pm25_topic, value, 0, 0, 0);
+        ESP_LOGI(LOG_TAG, "published pm25 value, msg_id=%d", msg_id);
+
+        sprintf(value, "%d", pm100);
+        msg_id = esp_mqtt_client_publish(mqtt_client, pm100_topic, value, 0, 0, 0);
+        ESP_LOGI(LOG_TAG, "published pm100 value, msg_id=%d", msg_id);
     }
-
-    dust_mesurement.pm01_consentration_standard = (data[4] << 8) + data[5];
-    dust_mesurement.pm25_consentration_standard = (data[6] << 8) + data[7];
-    dust_mesurement.pm10_consentration_standard = (data[8] << 8) + data[9];
-    dust_mesurement.pm01_consentration_atmo = (data[10] << 8) + data[11];
-    dust_mesurement.pm25_consentration_atmo = (data[12] << 8) + data[13];
-    dust_mesurement.pm10_consentration_atmo = (data[14] << 8) + data[15];
-    dust_mesurement.part_number03 = (data[16] << 8) + data[17];
-    dust_mesurement.part_number05 = (data[18] << 8) + data[19];
-    dust_mesurement.part_number10 = (data[20] << 8) + data[21];
-    dust_mesurement.part_number25 = (data[22] << 8) + data[23];
-    dust_mesurement.part_number50 = (data[24] << 8) + data[25];
-    dust_mesurement.part_number100 = (data[26] << 8) + data[27];
-
-    ESP_LOGI(LOG_TAG, "pm 2.5 atmo concentration is %05d", dust_mesurement.pm25_consentration_atmo);
-    ESP_LOGI(LOG_TAG, "pm 10  atmo concentration is %05d", dust_mesurement.pm10_consentration_atmo);
-
-    ESP_LOGI(LOG_TAG, "pm 2.5 stan concentration is %05d", dust_mesurement.pm25_consentration_standard);
-    ESP_LOGI(LOG_TAG, "pm 10  stan concentration is %05d", dust_mesurement.pm10_consentration_standard);
-
-    xSemaphoreGive(dust_semaphore);
 }
 
 static void dust_sensor_task()
@@ -144,7 +129,7 @@ static void dust_sensor_task()
 
         if (result >= 0)
         {
-            parse_dust_data(b, result);
+            publish_dust_data(b, result);
             vTaskDelay(10000 / portTICK_PERIOD_MS);
         }
     }
@@ -238,8 +223,67 @@ void start_wifi()
     }
 }
 
+char *get_uniq_id()
+{
+    return "dust";
+}
+
+static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
+{
+    ESP_LOGD(LOG_TAG, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
+
+    esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
+
+    // your_context_t *context = event->context;
+    switch (event->event_id)
+    {
+    case MQTT_EVENT_CONNECTED:
+        ESP_LOGI(LOG_TAG, "MQTT_EVENT_CONNECTED");
+        mqtt_connected = 1;
+        break;
+
+    case MQTT_EVENT_DISCONNECTED:
+        ESP_LOGI(LOG_TAG, "MQTT_EVENT_DISCONNECTED");
+        mqtt_connected = 0;
+        break;
+
+    case MQTT_EVENT_PUBLISHED:
+        ESP_LOGI(LOG_TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+        break;
+    case MQTT_EVENT_ERROR:
+        ESP_LOGI(LOG_TAG, "MQTT_EVENT_ERROR");
+        break;
+    default:
+        ESP_LOGI(LOG_TAG, "Other event id:%d", event->event_id);
+        break;
+    }
+    return;
+}
+
+void start_mqtt_client()
+{
+    esp_mqtt_client_config_t mqtt_cfg = {
+        .uri = MQTT_BROKER_URL,
+        .username = MQTT_LOGIN,
+        .password = MQTT_PASSWORD,
+    };
+
+    mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+    esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, mqtt_client);
+    esp_mqtt_client_start(mqtt_client);
+}
+
 void app_main()
 {
+
+    esp_log_level_set("*", ESP_LOG_INFO);
+    esp_log_level_set("MQTT_CLIENT", ESP_LOG_VERBOSE);
+    esp_log_level_set("TRANSPORT_TCP", ESP_LOG_VERBOSE);
+    esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
+    esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
+    esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
+    esp_log_level_set(LOG_TAG, ESP_LOG_VERBOSE);
+
     dust_semaphore = xSemaphoreCreateBinary();
     xSemaphoreGive(dust_semaphore);
 
@@ -256,5 +300,10 @@ void app_main()
 
     start_wifi();
 
-    //    xTaskCreate(dust_sensor_task, "dust_sensor_task", 1024, NULL, 10, NULL);
+    sprintf(pm25_topic, "%s%s%s", MQTT_TOPIC_PREFIX, get_uniq_id(), MQTT_TOPIC_PM25);
+    sprintf(pm100_topic, "%s%s%s", MQTT_TOPIC_PREFIX, get_uniq_id(), MQTT_TOPIC_PM100);
+
+    start_mqtt_client();
+
+    xTaskCreate(dust_sensor_task, "dust_sensor_task", 4096, NULL, 10, NULL);
 }

@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../../../../.platformio/packages/framework-espidf"
+    }
+  ],
+  "settings": {
+    "files.associations": {
+      "*.ipp": "c",
+      "cstring": "c"
+    }
+  }
+}

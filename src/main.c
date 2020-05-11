@@ -6,6 +6,7 @@
 #include "freertos/event_groups.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
+#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "esp_wifi.h"

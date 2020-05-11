@@ -394,4 +394,5 @@ void app_main()
     start_mqtt_client();
 
     xTaskCreate(dust_sensor_task, "dust_sensor_task", 4096, NULL, 10, NULL);
+    xTaskCreate(co2_sensor_task, "co2_sensor_task", 4096, NULL, 10, NULL);
 }

@@ -99,7 +99,7 @@ static void dust_sensor_task()
     };
 
     uart_param_config(UART_NUM_2, &in_config);
-    uart_set_pin(UART_NUM_2, PIN_TX, PIN_RX, PIN_RTS, PIN_CTS);
+    uart_set_pin(UART_NUM_2, DUST_PIN_TX, DUST_PIN_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     uart_driver_install(UART_NUM_2, BUF_SIZE, BUF_SIZE, 0, NULL, 0);
 
     uint8_t b[100];

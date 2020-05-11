@@ -132,7 +132,7 @@ static void dust_sensor_task()
 
         uart_write_bytes(UART_NUM_2, (const char *)cmd_read, 7);
 
-        result = uart_read_bytes(UART_NUM_2, b, BUF_SIZE, 20);
+        result = uart_read_bytes(UART_NUM_2, b, BUF_SIZE, 200 / portTICK_PERIOD_MS);
 
         if (result >= 0)
         {

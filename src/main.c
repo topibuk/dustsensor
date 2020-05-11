@@ -14,10 +14,11 @@
 #include "mqtt_client.h"
 #include "stdatomic.h"
 
-#define PIN_RX GPIO_NUM_16
-#define PIN_TX GPIO_NUM_17
-#define PIN_RTS UART_PIN_NO_CHANGE
-#define PIN_CTS UART_PIN_NO_CHANGE
+#define DUST_PIN_RX GPIO_NUM_16
+#define DUST_PIN_TX GPIO_NUM_17
+
+#define DUST_TASK_DELAY 10000 //microseconds
+
 
 #define LOG_TAG "main"
 
@@ -130,7 +131,7 @@ static void dust_sensor_task()
         if (result >= 0)
         {
             publish_dust_data(b, result);
-            vTaskDelay(10000 / portTICK_PERIOD_MS);
+            vTaskDelay(DUST_TASK_DELAY / portTICK_PERIOD_MS);
         }
     }
 }

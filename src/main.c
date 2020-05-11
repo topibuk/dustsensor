@@ -19,6 +19,11 @@
 
 #define DUST_TASK_DELAY 10000 //microseconds
 
+#define CO2_PIN_RX GPIO_NUM_26
+#define CO2_PIN_TX GPIO_NUM_27
+#define CO2_READ_FAILS 20
+
+#define CO2_TASK_DELAY 10000 //microseconds
 
 #define LOG_TAG "main"
 

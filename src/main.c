@@ -227,8 +227,6 @@ void bmp280_task()
     ESP_ERROR_CHECK(i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0));
     ESP_LOGI(LOG_TAG, "i2c_0 initialized");
 
-    int8_t res;
-
     if (bmp280_init(&bmp) != 0)
     {
         ESP_LOGE(LOG_TAG, "unable to initialize bmp280, panic");

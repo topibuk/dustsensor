@@ -1,6 +1,6 @@
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
-#define LOG_TAG "co2"
+#define LOG_TAG "co2 task"
 
 #include "driver/gpio.h"
 #include "driver/uart.h"

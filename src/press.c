@@ -1,6 +1,6 @@
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
-#define LOG_TAG "pressure"
+#define LOG_TAG "pressure task"
 
 #include "driver/i2c.h"
 

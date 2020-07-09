@@ -6,9 +6,8 @@
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 #include "esp_event.h"
-#include "dust_sensor.h"
 
-#define LOG_TAG "main"
+#define LOG_TAG "TASK:main"
 
 char *get_uniq_id()
 {

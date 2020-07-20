@@ -11,6 +11,8 @@
 
 #define LOG_TAG "TASK:main"
 
+EventGroupHandle_t eg_app_status;
+
 char *get_uniq_id()
 {
     return "dust";
@@ -49,7 +51,6 @@ void publish_dust_data(const uint8_t *data, uint8_t length)
 
 void app_main()
 {
-
     esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set("MQTT_CLIENT", ESP_LOG_VERBOSE);
     esp_log_level_set("TRANSPORT_TCP", ESP_LOG_VERBOSE);
@@ -60,7 +61,12 @@ void app_main()
     //    esp_log_level_set("bmp280", ESP_LOG_VERBOSE);
     esp_log_level_set(LOG_TAG, ESP_LOG_DEBUG);
 
-    start_network();
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    eg_app_status = xEventGroupCreate();
+    xEventGroupClearBits(eg_app_status, 0xff);
+
+    //    start_network();
 
     /*
     sprintf(pm25_topic, "%s%s%s", MQTT_TOPIC_PREFIX, get_uniq_id(), MQTT_TOPIC_PM25);
@@ -69,6 +75,7 @@ void app_main()
 
     //    start_mqtt_client();
 
+    /*
     dust_values.lock = xSemaphoreCreateBinary();
     co2_values.lock = xSemaphoreCreateBinary();
     bmp_values.lock = xSemaphoreCreateBinary();
@@ -80,4 +87,7 @@ void app_main()
     xTaskCreate(dust_sensor_task, "dust_sensor_task", 4096, NULL, 10, NULL);
     xTaskCreate(co2_sensor_task, "co2_sensor_task", 4096, NULL, 10, NULL);
     xTaskCreate(bmp280_task, "bmp280_sensor_task", 4096, NULL, 10, NULL);
+    */
+
+    xTaskCreate(network_task, "network_sensor_task", 4096, NULL, 10, NULL);
 }

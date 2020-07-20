@@ -164,11 +164,11 @@ void bmp280_task()
         bmp_values.pres = pres;
         bmp_values.updated = true;
 
-        ESP_LOGD(LOG_TAG, "Tuncomp: %i", ucomp_data.uncomp_temp);
-        ESP_LOGI(LOG_TAG, "T float: %f", temp);
+        ESP_LOGV(LOG_TAG, "Tuncomp: %i", ucomp_data.uncomp_temp);
+        ESP_LOGD(LOG_TAG, "T float: %f", temp);
 
-        ESP_LOGD(LOG_TAG, "Puncomp: %i", ucomp_data.uncomp_press);
-        ESP_LOGI(LOG_TAG, "P float: %f", pres);
+        ESP_LOGV(LOG_TAG, "Puncomp: %i", ucomp_data.uncomp_press);
+        ESP_LOGD(LOG_TAG, "P float: %f", pres);
 
         xSemaphoreGive(bmp_values.lock);
 

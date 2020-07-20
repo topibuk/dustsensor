@@ -3,6 +3,8 @@
 
 #include "dust_sensor.h"
 
+#include "esp_heap_task_info.h"
+
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 #include "esp_event.h"

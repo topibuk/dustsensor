@@ -1,4 +1,4 @@
 .pio
 .vscode/
 secrets.h
-*.old
+sdkconfig.old

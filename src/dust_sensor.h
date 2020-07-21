@@ -20,6 +20,7 @@ extern EventGroupHandle_t eg_app_status;
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT BIT1
 #define MQTT_CONNECTED_BIT BIT2
+#define MQTT_MUST_DISCONNECT_BIT BIT3
 #define MQTT_DELAY 1000 //microseconds
 
 void dust_sensor_task();

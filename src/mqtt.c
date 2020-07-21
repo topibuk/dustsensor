@@ -60,25 +60,47 @@ void stop_mqtt_client()
     esp_mqtt_client_stop(mqtt_client);
 }
 
+#define statusMQTT_MUST_DISCONNECT(a) (a & MQTT_MUST_DISCONNECT_BIT)
+#define statusWIFI_CONNECTED(a) (a & WIFI_CONNECTED_BIT)
+#define statusMQTT_CONNECTED(a) (a & MQTT_CONNECTED_BIT)
+
 void mqtt_task()
 {
+    EventBits_t bits;
+
+    ESP_LOGI(LOG_TAG, "task started");
+
     for (;;)
     {
 
-        EventBits_t bits = xEventGroupGetBits(eg_app_status);
-        if (bits && MQTT_CONNECTED_BIT & bits && WIFI_CONNECTED_BIT)
+        ESP_LOGI(LOG_TAG, "cycle");
+
+        bits = xEventGroupWaitBits(eg_app_status, MQTT_MUST_DISCONNECT_BIT,
+                                   pdFALSE,
+                                   pdFALSE,
+                                   MQTT_DELAY / portTICK_PERIOD_MS);
+
+        ESP_LOGI(LOG_TAG, "%i", bits);
+
+        if ((statusMQTT_MUST_DISCONNECT(bits) && statusMQTT_CONNECTED(bits)) ||
+            (!statusWIFI_CONNECTED(bits) && statusMQTT_CONNECTED(bits)))
         {
-            ESP_LOGI(LOG_TAG, "sending updates via mqtt");
+            ESP_LOGD(LOG_TAG, "stopping MQTT client");
+            stop_mqtt_client();
+            xEventGroupClearBits(eg_app_status, MQTT_CONNECTED_BIT | MQTT_MUST_DISCONNECT_BIT);
         }
-        else if (bits && WIFI_CONNECTED_BIT)
+        else if (statusWIFI_CONNECTED(bits) && !statusMQTT_CONNECTED(bits))
         {
+            ESP_LOGD(LOG_TAG, "strating MQTT client");
             // FIXME: do not start mqtt client if "startup" procedure in progress
             start_mqtt_client();
+            xEventGroupSetBits(eg_app_status, MQTT_CONNECTED_BIT);
         }
-        else if (bits && MQTT_CONNECTED_BIT)
+        else if (statusMQTT_CONNECTED(bits) && statusWIFI_CONNECTED(bits) &&
+                 !statusMQTT_MUST_DISCONNECT(bits))
         {
-            stop_mqtt_client();
+            ESP_LOGD(LOG_TAG, "sending updates via mqtt");
         }
-        vTaskDelay(MQTT_DELAY / portTICK_PERIOD_MS);
+        xEventGroupClearBits(eg_app_status, MQTT_MUST_DISCONNECT_BIT);
     }
 }

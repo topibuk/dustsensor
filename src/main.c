@@ -58,6 +58,7 @@ void app_main()
     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
     esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
     esp_log_level_set("dust", ESP_LOG_VERBOSE);
+    esp_log_level_set("TASK: mqtt", ESP_LOG_VERBOSE);
     //    esp_log_level_set("bmp280", ESP_LOG_VERBOSE);
     esp_log_level_set(LOG_TAG, ESP_LOG_DEBUG);
 
@@ -89,5 +90,6 @@ void app_main()
     xTaskCreate(bmp280_task, "bmp280_sensor_task", 4096, NULL, 10, NULL);
     */
 
-    xTaskCreate(network_task, "network_sensor_task", 4096, NULL, 10, NULL);
+    xTaskCreate(network_task, "network_task", 4096, NULL, 10, NULL);
+    xTaskCreate(mqtt_task, "mqtt_task", 4096, NULL, 10, NULL);
 }

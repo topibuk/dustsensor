@@ -28,6 +28,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
             break;
         case WIFI_EVENT_STA_DISCONNECTED:
             xEventGroupClearBits(eg_app_status, WIFI_CONNECTED_BIT);
+            xEventGroupSetBits(eg_app_status, MQTT_MUST_DISCONNECT_BIT);
 
             if (wifi_connect_retry_counter < WIFI_CONNECT_MAXIMUM_RETRY)
             {

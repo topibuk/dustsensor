@@ -31,7 +31,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(LOG_TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
         break;
     case MQTT_EVENT_ERROR:
-        ESP_LOGI(LOG_TAG, "MQTT_EVENT_ERROR");
+        ESP_LOGE(LOG_TAG, "MQTT_EVENT_ERROR");
+        xEventGroupSetBits(eg_app_status, MQTT_MUST_DISCONNECT_BIT);
         break;
     default:
         ESP_LOGI(LOG_TAG, "Other event id:%d", event->event_id);
@@ -42,19 +43,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 void start_mqtt_client()
 {
-    esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = MQTT_BROKER_URL,
-        .username = MQTT_LOGIN,
-        .password = MQTT_PASSWORD,
-    };
+    ESP_LOGV(LOG_TAG, "starting mqtt client");
 
-    mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, mqtt_client);
     esp_mqtt_client_start(mqtt_client);
 }
 
 void stop_mqtt_client()
 {
+    ESP_LOGV(LOG_TAG, "stopping mqtt client");
     if (!mqtt_client)
         return;
     esp_mqtt_client_stop(mqtt_client);
@@ -69,6 +65,16 @@ void mqtt_task()
     EventBits_t bits;
 
     ESP_LOGI(LOG_TAG, "task started");
+
+    esp_mqtt_client_config_t mqtt_cfg = {
+        .uri = MQTT_BROKER_URL,
+        .username = MQTT_LOGIN,
+        .password = MQTT_PASSWORD,
+    };
+
+    mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+
+    esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, mqtt_client);
 
     for (;;)
     {

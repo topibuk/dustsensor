@@ -39,12 +39,6 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
             }
             else
             {
-                ESP_LOGD(LOG_TAG, "set bits 1");
-                if (!eg_app_status)
-                {
-                    ESP_LOGE(LOG_TAG, "esp_app_status is NULL!");
-                    return;
-                }
                 xEventGroupSetBits(eg_app_status, WIFI_FAIL_BIT);
             }
             ESP_LOGI(LOG_TAG, "connect to the AP fail");
@@ -120,13 +114,12 @@ void network_task()
 
         /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
      number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
-        /*
+
         EventBits_t bits = xEventGroupWaitBits(eg_app_status,
                                                WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
                                                pdFALSE,
                                                pdFALSE,
                                                portMAX_DELAY);
-                                               */
 
         /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
      happened. */

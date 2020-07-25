@@ -93,7 +93,7 @@ void co2_sensor_task()
         co2_values.ppm = (uint16_t)((uint16_t)data[2] << 8 | (uint16_t)data[3]);
         co2_values.updated = true;
 
-        ESP_LOGI(LOG_TAG, "updated co2 ppm is %d", co2_values.ppm);
+        ESP_LOGV(LOG_TAG, "updated co2 ppm is %d", co2_values.ppm);
 
         xSemaphoreGive(co2_values.lock);
 

@@ -21,7 +21,9 @@ extern EventGroupHandle_t eg_app_status;
 #define WIFI_FAIL_BIT BIT1
 #define MQTT_CONNECTED_BIT BIT2
 #define MQTT_MUST_DISCONNECT_BIT BIT3
-#define MQTT_DELAY 1000 //microseconds
+#define MQTT_DELAY 10000 //microseconds
+
+#define SEMAPHORE_TIMEOUT 2000 // microseconds
 
 void dust_sensor_task();
 void co2_sensor_task();

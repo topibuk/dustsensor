@@ -67,16 +67,6 @@ void app_main()
     eg_app_status = xEventGroupCreate();
     xEventGroupClearBits(eg_app_status, 0xff);
 
-    //    start_network();
-
-    /*
-    sprintf(pm25_topic, "%s%s%s", MQTT_TOPIC_PREFIX, get_uniq_id(), MQTT_TOPIC_PM25);
-    sprintf(pm100_topic, "%s%s%s", MQTT_TOPIC_PREFIX, get_uniq_id(), MQTT_TOPIC_PM100);
-    */
-
-    //    start_mqtt_client();
-
-    /*
     dust_values.lock = xSemaphoreCreateBinary();
     co2_values.lock = xSemaphoreCreateBinary();
     bmp_values.lock = xSemaphoreCreateBinary();
@@ -88,7 +78,6 @@ void app_main()
     xTaskCreate(dust_sensor_task, "dust_sensor_task", 4096, NULL, 10, NULL);
     xTaskCreate(co2_sensor_task, "co2_sensor_task", 4096, NULL, 10, NULL);
     xTaskCreate(bmp280_task, "bmp280_sensor_task", 4096, NULL, 10, NULL);
-    */
 
     xTaskCreate(network_task, "network_task", 4096, NULL, 10, NULL);
     xTaskCreate(mqtt_task, "mqtt_task", 4096, NULL, 10, NULL);

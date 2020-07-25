@@ -106,8 +106,8 @@ void dust_sensor_task()
         dust_values.pm100 = (data[14] << 8) + data[15];
         dust_values.updated = true;
 
-        ESP_LOGI(LOG_TAG, "updated pm25 is %d", dust_values.pm25);
-        ESP_LOGI(LOG_TAG, "updated pm100 is %d", dust_values.pm100);
+        ESP_LOGV(LOG_TAG, "updated pm25 is %d", dust_values.pm25);
+        ESP_LOGV(LOG_TAG, "updated pm100 is %d", dust_values.pm100);
 
         xSemaphoreGive(dust_values.lock);
 

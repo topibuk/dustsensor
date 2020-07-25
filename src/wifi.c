@@ -109,43 +109,6 @@ void network_task()
 
     for (;;)
     {
-
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
-
-        /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
-     number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
-
-        EventBits_t bits = xEventGroupWaitBits(eg_app_status,
-                                               WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-                                               pdFALSE,
-                                               pdFALSE,
-                                               portMAX_DELAY);
-
-        /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
-     happened. */
-
-        /*
-        if (bits & WIFI_CONNECTED_BIT)
-        {
-            wifi_connected = true;
-            ESP_LOGI(LOG_TAG, "connected to ap SSID:%s", WIFI_SSID);
-        }
-        else if (bits & WIFI_FAIL_BIT)
-        {
-            if (wifi_connected)
-            {
-                ESP_LOGI(LOG_TAG, "Disconnected from SSID:%s", WIFI_SSID);
-            }
-            else
-            {
-                ESP_LOGI(LOG_TAG, "Failed to connect to SSID:%s", WIFI_SSID);
-                return;
-            }
-        }
-        else
-        {
-            ESP_LOGE(LOG_TAG, "UNEXPECTED EVENT %#8x", bits);
-        }
-    */
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }

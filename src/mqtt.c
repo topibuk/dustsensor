@@ -56,6 +56,50 @@ void stop_mqtt_client()
     esp_mqtt_client_stop(mqtt_client);
 }
 
+void sendMQTTupdate()
+{
+    char value[64];
+    char topic[128];
+    int msg_id;
+
+    ESP_LOGD(LOG_TAG, "sending updates via mqtt");
+
+    xSemaphoreTake(dust_values.lock, SEMAPHORE_TIMEOUT / portTICK_PERIOD_MS);
+    sprintf(value, "%d", dust_values.pm25);
+    xSemaphoreGive(dust_values.lock);
+    sprintf(topic, "%s/%s", MQTT_TOPIC_PREFIX, MQTT_TOPIC_PM25);
+    msg_id = esp_mqtt_client_publish(mqtt_client, topic, value, 0, 0, 0);
+    ESP_LOGD(LOG_TAG, "published pm25 value=%s, msg_id=%d", value, msg_id);
+
+    xSemaphoreTake(dust_values.lock, SEMAPHORE_TIMEOUT / portTICK_PERIOD_MS);
+    sprintf(value, "%d", dust_values.pm100);
+    xSemaphoreGive(dust_values.lock);
+    sprintf(topic, "%s/%s", MQTT_TOPIC_PREFIX, MQTT_TOPIC_PM100);
+    msg_id = esp_mqtt_client_publish(mqtt_client, topic, value, 0, 0, 0);
+    ESP_LOGD(LOG_TAG, "published pm100 value=%s, msg_id=%d", value, msg_id);
+
+    xSemaphoreTake(co2_values.lock, SEMAPHORE_TIMEOUT / portTICK_PERIOD_MS);
+    sprintf(value, "%d", co2_values.ppm);
+    xSemaphoreGive(co2_values.lock);
+    sprintf(topic, "%s/%s", MQTT_TOPIC_PREFIX, MQTT_TOPIC_CO2);
+    msg_id = esp_mqtt_client_publish(mqtt_client, topic, value, 0, 0, 0);
+    ESP_LOGD(LOG_TAG, "published co2 value=%s, msg_id=%d", value, msg_id);
+
+    xSemaphoreTake(bmp_values.lock, SEMAPHORE_TIMEOUT / portTICK_PERIOD_MS);
+    sprintf(value, "%0.0f", bmp_values.pres / 133.322);
+    xSemaphoreGive(bmp_values.lock);
+    sprintf(topic, "%s/%s", MQTT_TOPIC_PREFIX, MQTT_TOPIC_PRES);
+    msg_id = esp_mqtt_client_publish(mqtt_client, topic, value, 0, 0, 0);
+    ESP_LOGD(LOG_TAG, "published pressure value=%s, msg_id=%d", value, msg_id);
+
+    xSemaphoreTake(bmp_values.lock, SEMAPHORE_TIMEOUT / portTICK_PERIOD_MS);
+    sprintf(value, "%0.1f", bmp_values.temp);
+    xSemaphoreGive(bmp_values.lock);
+    sprintf(topic, "%s/%s", MQTT_TOPIC_PREFIX, MQTT_TOPIC_TEMP);
+    msg_id = esp_mqtt_client_publish(mqtt_client, topic, value, 0, 0, 0);
+    ESP_LOGD(LOG_TAG, "published temperature value=%s, msg_id=%d", value, msg_id);
+}
+
 #define statusMQTT_MUST_DISCONNECT(a) (a & MQTT_MUST_DISCONNECT_BIT)
 #define statusWIFI_CONNECTED(a) (a & WIFI_CONNECTED_BIT)
 #define statusMQTT_CONNECTED(a) (a & MQTT_CONNECTED_BIT)
@@ -105,7 +149,7 @@ void mqtt_task()
         else if (statusMQTT_CONNECTED(bits) && statusWIFI_CONNECTED(bits) &&
                  !statusMQTT_MUST_DISCONNECT(bits))
         {
-            ESP_LOGD(LOG_TAG, "sending updates via mqtt");
+            sendMQTTupdate();
         }
         xEventGroupClearBits(eg_app_status, MQTT_MUST_DISCONNECT_BIT);
     }

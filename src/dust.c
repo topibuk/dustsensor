@@ -12,9 +12,6 @@
 
 #define DUST_MAX_FAILS 20
 
-static char pm25_topic[100];
-static char pm100_topic[100];
-
 static char cmd_dust_set_passive_mode[] = {0x42,
                                            0x4D,
                                            0xE1,

@@ -42,8 +42,10 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                 xEventGroupSetBits(eg_app_status, WIFI_FAIL_BIT);
             }
             ESP_LOGI(LOG_TAG, "connect to the AP fail");
+            break;
         default:
             ESP_LOGI(LOG_TAG, "unhandled WIFI_EVENT");
+            break;
         }
     }
     else if (event_base == IP_EVENT)

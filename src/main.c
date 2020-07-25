@@ -18,37 +18,6 @@ char *get_uniq_id()
     return "dust";
 }
 
-/*
-void publish_dust_data(const uint8_t *data, uint8_t length)
-{
-
-    if (length != 32)
-    {
-        return;
-    }
-
-    uint16_t pm25 = (data[12] << 8) + data[13];
-    uint16_t pm100 = (data[14] << 8) + data[15];
-
-    ESP_LOGD(LOG_TAG, "pm 2.5 atmo concentration is %05d", pm25);
-    ESP_LOGD(LOG_TAG, "pm 10  atmo concentration is %05d", pm100);
-
-    if (mqtt_connected)
-    {
-        int msg_id;
-        char value[10];
-
-        sprintf(value, "%d", pm25);
-        msg_id = esp_mqtt_client_publish(mqtt_client, pm25_topic, value, 0, 0, 0);
-        ESP_LOGI(LOG_TAG, "published pm25 value, msg_id=%d", msg_id);
-
-        sprintf(value, "%d", pm100);
-        msg_id = esp_mqtt_client_publish(mqtt_client, pm100_topic, value, 0, 0, 0);
-        ESP_LOGI(LOG_TAG, "published pm100 value, msg_id=%d", msg_id);
-    }
-}
-*/
-
 void app_main()
 {
     esp_log_level_set("*", ESP_LOG_INFO);

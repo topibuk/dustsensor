@@ -123,25 +123,25 @@ void mqtt_task()
     for (;;)
     {
 
-        ESP_LOGI(LOG_TAG, "cycle");
+        ESP_LOGD(LOG_TAG, "cycle");
 
         bits = xEventGroupWaitBits(eg_app_status, MQTT_MUST_DISCONNECT_BIT,
                                    pdFALSE,
                                    pdFALSE,
                                    MQTT_DELAY / portTICK_PERIOD_MS);
 
-        ESP_LOGI(LOG_TAG, "%i", bits);
+        ESP_LOGD(LOG_TAG, "eg_ap_status event group value: %i", bits);
 
         if ((statusMQTT_MUST_DISCONNECT(bits) && statusMQTT_CONNECTED(bits)) ||
             (!statusWIFI_CONNECTED(bits) && statusMQTT_CONNECTED(bits)))
         {
-            ESP_LOGD(LOG_TAG, "stopping MQTT client");
+            ESP_LOGI(LOG_TAG, "stopping MQTT client");
             stop_mqtt_client();
             xEventGroupClearBits(eg_app_status, MQTT_CONNECTED_BIT | MQTT_MUST_DISCONNECT_BIT);
         }
         else if (statusWIFI_CONNECTED(bits) && !statusMQTT_CONNECTED(bits))
         {
-            ESP_LOGD(LOG_TAG, "strating MQTT client");
+            ESP_LOGI(LOG_TAG, "strating MQTT client");
             // FIXME: do not start mqtt client if "startup" procedure in progress
             start_mqtt_client();
             xEventGroupSetBits(eg_app_status, MQTT_CONNECTED_BIT);

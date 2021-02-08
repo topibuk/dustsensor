@@ -10,7 +10,10 @@
   "settings": {
     "files.associations": {
       "*.ipp": "c",
-      "cstring": "c"
+      "cstring": "c",
+      "esp_heap_task_info.h": "c",
+      "algorithm": "c",
+      "esp_log.h": "c"
     }
   }
 }

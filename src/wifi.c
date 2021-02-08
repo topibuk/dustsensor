@@ -55,7 +55,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         {
         case IP_EVENT_STA_GOT_IP:
             ESP_LOGI(LOG_TAG, "got ip:%s",
-                     ip4addr_ntoa(&event->ip_info.ip));
+                     ip4addr_ntoa((ip4_addr_t *)&event->ip_info.ip));
             wifi_connect_retry_counter = 0;
             ESP_LOGD(LOG_TAG, "set bits 2");
             if (!eg_app_status)

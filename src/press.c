@@ -160,7 +160,14 @@ void bmp280_task()
             }
         };
 
-        bmp_values.temp = temp;
+        /*
+        Adjust temperature.
+        Use Less Squares method for a series of real measurements
+        Approximate result with the line: Treal = A * Tmeasured + B
+        Constants A & B are in config header file
+        */
+
+        bmp_values.temp = TEMP_K_A * temp + TEMP_K_B;
         bmp_values.pres = pres;
         bmp_values.updated = true;
 

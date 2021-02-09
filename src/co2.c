@@ -70,6 +70,7 @@ void co2_sensor_task()
         uint8_t count = 0;
         uint8_t fails_count = 0;
 
+        uart_flush(UART_NUM_1);
         res = uart_write_bytes(UART_NUM_1, (const char *)cmd_co2_read, sizeof(cmd_co2_read));
 
         if (res < 0)

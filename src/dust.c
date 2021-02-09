@@ -62,6 +62,7 @@ void dust_sensor_task()
     for (;;)
     {
 
+        uart_flush(UART_NUM_2);
         res = uart_write_bytes(UART_NUM_2, (const char *)cmd_dust_read, sizeof(cmd_dust_read));
 
         if (res < 0)

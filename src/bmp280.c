@@ -38,7 +38,7 @@
 #include "bmp280.h"
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
-#define LOG_TAG "bmp280"
+#define LOG_TAG "LIBRARY: bmp280 Bosch"
 
 /********************** Static function declarations ************************/
 

@@ -28,6 +28,19 @@ static char cmd_co2_read[] = {
     0x79,
 };
 
+uint8_t mhz_checksum(uint8_t *packet)
+{
+    uint8_t i;
+    unsigned char checksum = 0;
+    for (i = 1; i < 8; i++)
+    {
+        checksum += packet[i];
+    }
+    checksum = 0xff - checksum;
+    checksum += 1;
+    return checksum;
+}
+
 void co2_sensor_task()
 {
     /*
@@ -53,6 +66,7 @@ void co2_sensor_task()
 
         int8_t res;
         uint8_t data[9];
+        uint8_t checksum;
         uint8_t count = 0;
         uint8_t fails_count = 0;
 
@@ -79,6 +93,8 @@ void co2_sensor_task()
             }
         }
 
+        checksum = mhz_checksum(data);
+
         fails_count = 0;
         while (xSemaphoreTake(co2_values.lock, 1000 / portTICK_PERIOD_MS) != pdTRUE)
         {
@@ -90,8 +106,16 @@ void co2_sensor_task()
             }
         };
 
+        if (checksum == data[8])
+        {
         co2_values.ppm = (uint16_t)((uint16_t)data[2] << 8 | (uint16_t)data[3]);
         co2_values.updated = true;
+        }
+        else
+        {
+            co2_values.ppm = 0;
+            co2_values.updated = true;
+        }
 
         ESP_LOGV(LOG_TAG, "updated co2 ppm is %d", co2_values.ppm);
 

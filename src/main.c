@@ -26,9 +26,9 @@ void app_main()
     esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
     esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
-    esp_log_level_set("dust", ESP_LOG_VERBOSE);
+    esp_log_level_set("TASK: dust", ESP_LOG_INFO);
     esp_log_level_set("TASK: mqtt", ESP_LOG_VERBOSE);
-    esp_log_level_set("TASK: pressure", ESP_LOG_VERBOSE);
+    esp_log_level_set("TASK: pressure", ESP_LOG_INFO);
     esp_log_level_set(LOG_TAG, ESP_LOG_DEBUG);
 
     ESP_ERROR_CHECK(esp_event_loop_create_default());

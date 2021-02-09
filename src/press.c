@@ -173,6 +173,7 @@ void bmp280_task()
 
         ESP_LOGV(LOG_TAG, "Tuncomp: %i", ucomp_data.uncomp_temp);
         ESP_LOGV(LOG_TAG, "T float: %f", temp);
+        ESP_LOGV(LOG_TAG, "T float adjusted: %f", bmp_values.temp);
 
         ESP_LOGV(LOG_TAG, "Puncomp: %i", ucomp_data.uncomp_press);
         ESP_LOGV(LOG_TAG, "P float: %f", pres);

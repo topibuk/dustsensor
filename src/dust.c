@@ -32,6 +32,19 @@ static char cmd_dust_read[] = {0x42,
 
 // 0x42 + 0x4D + 0xE2 + 0x00 + 0x00 + 0x01 = 0x171 = 0x1 << 8 + 0x71
 
+uint16_t pms_checksum(uint8_t *buffer, uint8_t length)
+{
+    uint8_t i;
+    uint16_t result = 0;
+
+    for (i = 0; i < length; i++)
+    {
+        result += buffer[i];
+    }
+
+    return result;
+}
+
 void dust_sensor_task()
 {
     /*
@@ -62,6 +75,8 @@ void dust_sensor_task()
     for (;;)
     {
 
+        uint16_t data_checksum;
+
         uart_flush(UART_NUM_2);
         res = uart_write_bytes(UART_NUM_2, (const char *)cmd_dust_read, sizeof(cmd_dust_read));
 
@@ -89,6 +104,11 @@ void dust_sensor_task()
             }
         }
 
+        data_checksum = (data[30] << 8) + data[31];
+
+        ESP_LOGV(LOG_TAG, "data_checksum is 0x%x", data_checksum);
+        ESP_LOGV(LOG_TAG, "Calculated CRC 0x%x", pms_checksum(data, 30));
+
         fails_count = 0;
 
         while (xSemaphoreTake(dust_values.lock, 1000 / portTICK_PERIOD_MS) != pdTRUE)
@@ -103,8 +123,19 @@ void dust_sensor_task()
 
         fails_count = 0;
 
-        dust_values.pm25 = (data[12] << 8) + data[13];
-        dust_values.pm100 = (data[14] << 8) + data[15];
+        if (data_checksum == pms_checksum(data, 30))
+        {
+
+            dust_values.pm25 = (data[12] << 8) + data[13];
+            dust_values.pm100 = (data[14] << 8) + data[15];
+        }
+        else
+        {
+            dust_values.pm25 = 0;
+            dust_values.pm100 = 0;
+            ESP_LOGW(LOG_TAG, "wrong checksum");
+        }
+
         dust_values.updated = true;
 
         ESP_LOGV(LOG_TAG, "updated pm25 is %d", dust_values.pm25);

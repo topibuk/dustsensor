@@ -80,7 +80,7 @@ void bmp280_task()
 {
 
     /*
-    This is a mh-z19b procedure
+    This is a BMP-280 procedure
     */
 
     struct bmp280_dev bmp;

@@ -7,8 +7,8 @@
 #include "bmp280.h"
 #include "dust_sensor.h"
 
-#define SDA_PIN GPIO_NUM_25
-#define SCL_PIN GPIO_NUM_33
+#define SDA_PIN GPIO_NUM_33
+#define SCL_PIN GPIO_NUM_32
 #define I2C_ACK 0x0
 #define I2C_NACK 0x1
 

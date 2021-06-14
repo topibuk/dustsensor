@@ -9,8 +9,8 @@
 
 #define BUF_SIZE UART_FIFO_LEN * 2
 
-#define CO2_PIN_RX GPIO_NUM_26
-#define CO2_PIN_TX GPIO_NUM_27
+#define CO2_PIN_RX GPIO_NUM_21
+#define CO2_PIN_TX GPIO_NUM_19
 
 #define CO2_MAX_FAILS 20
 

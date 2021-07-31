@@ -8,11 +8,9 @@
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
 
-#include "secrets.h"
+#include "pms7003.h"
 
-#define DUST_PIN_RX GPIO_NUM_16
-#define DUST_PIN_TX GPIO_NUM_17
-#define DUST_TASK_DELAY 10000 //microseconds
+#include "secrets.h"
 
 /* FreeRTOS event group to signal when we are connected*/
 extern EventGroupHandle_t eg_app_status;
@@ -25,21 +23,12 @@ extern EventGroupHandle_t eg_app_status;
 
 #define SEMAPHORE_TIMEOUT 2000 // microseconds
 
-void dust_sensor_task();
 void co2_sensor_task();
 void bmp280_task();
 void network_task();
 void mqtt_task();
 
 void start_network();
-
-struct dust_values_s
-{
-    uint16_t pm25;
-    uint16_t pm100;
-    uint8_t updated;
-    SemaphoreHandle_t lock;
-} dust_values;
 
 struct co2_values_s
 {

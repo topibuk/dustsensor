@@ -9,6 +9,8 @@
 #include "freertos/event_groups.h"
 
 #include "pms7003.h"
+#include "bmp.h"
+#include "mhz19.h"
 
 #include "secrets.h"
 
@@ -32,6 +34,11 @@ extern EventGroupHandle_t eg_app_status;
 #define BMP_SCL_PIN GPIO_NUM_32
 
 #define BMP_TASK_DELAY 10000 //microseconds
+
+#define CO2_PIN_RX GPIO_NUM_21
+#define CO2_PIN_TX GPIO_NUM_19
+
+#define CO2_TASK_DELAY 10000 //microseconds
 
 struct dust_values_s
 {

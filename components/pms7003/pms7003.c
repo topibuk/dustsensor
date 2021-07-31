@@ -27,6 +27,8 @@ static char cmd_pms_read[] = {0x42,
 
 // 0x42 + 0x4D + 0xE2 + 0x00 + 0x00 + 0x01 = 0x171 = 0x1 << 8 + 0x71
 
+int _uart_num;
+
 uint16_t pms_checksum(uint8_t *buffer, uint8_t length)
 {
 	uint8_t i;
@@ -52,17 +54,19 @@ int pms_init(int pin_tx, int pin_rx, int uart_num)
 
 	};
 
-	uart_param_config(uart_num, &dust_config);
-	uart_set_pin(uart_num, pin_tx, pin_rx, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+	_uart_num = uart_num;
 
-	uart_driver_install(uart_num, DUST_RX_BUF_SIZE, DUST_TX_BUF_SIZE, 0, NULL, 0);
+	uart_param_config(_uart_num, &dust_config);
+	uart_set_pin(_uart_num, pin_tx, pin_rx, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+
+	uart_driver_install(_uart_num, DUST_RX_BUF_SIZE, DUST_TX_BUF_SIZE, 0, NULL, 0);
 
 	return ESP_OK;
 }
 
 int pms_set_passive_mode()
 {
-	uart_write_bytes(UART_NUM_2, (const char *)cmd_pms_set_passive_mode, sizeof(cmd_pms_set_passive_mode));
+	uart_write_bytes(_uart_num, (const char *)cmd_pms_set_passive_mode, sizeof(cmd_pms_set_passive_mode));
 
 	return ESP_OK;
 }
@@ -78,8 +82,8 @@ int pms_fill_values(pms_values_t *values)
 	uint16_t received_checksum;
 	uint16_t calculated_checksum;
 
-	uart_flush(UART_NUM_2);
-	res = uart_write_bytes(UART_NUM_2, (const char *)cmd_pms_read, sizeof(cmd_pms_read));
+	uart_flush(_uart_num);
+	res = uart_write_bytes(_uart_num, (const char *)cmd_pms_read, sizeof(cmd_pms_read));
 
 	if (res < 0)
 	{
@@ -91,7 +95,7 @@ int pms_fill_values(pms_values_t *values)
 
 	while (count < sizeof(data))
 	{
-		count = uart_read_bytes(UART_NUM_2, data + count, sizeof(data) - count, 200 / portTICK_PERIOD_MS);
+		count = uart_read_bytes(_uart_num, data + count, sizeof(data) - count, 200 / portTICK_PERIOD_MS);
 		ESP_LOGV(LOG_TAG, "read %i bytes", count);
 		if (count <= 0)
 		{

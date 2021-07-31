@@ -1,16 +1,24 @@
+#ifndef _PMS7003_H
+#define _PMS7003_H
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
-#define DUST_PIN_RX GPIO_NUM_16
-#define DUST_PIN_TX GPIO_NUM_17
-#define DUST_TASK_DELAY 10000 //microseconds
+#include "driver/gpio.h"
+#include "driver/uart.h"
 
-void dust_sensor_task();
+#define PMS_MAX_FAILS 100
 
-struct dust_values_s
+typedef struct
 {
 	uint16_t pm25;
 	uint16_t pm100;
-	uint8_t updated;
-	SemaphoreHandle_t lock;
-} dust_values;
+} pms_values_t;
+
+int pms_set_passive_mode();
+
+int pms_init(int pin_tx, int pin_rx, int uart_num);
+
+int pms_fill_values(pms_values_t *values);
+
+#endif // _PMS7003_H

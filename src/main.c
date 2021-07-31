@@ -46,7 +46,7 @@ void app_main()
 
     xTaskCreate(dust_sensor_task, "dust_sensor_task", 4096, NULL, 10, NULL);
     xTaskCreate(co2_sensor_task, "co2_sensor_task", 4096, NULL, 10, NULL);
-    xTaskCreate(bmp280_task, "bmp280_sensor_task", 4096, NULL, 10, NULL);
+    xTaskCreate(bmp_task, "bmp280_sensor_task", 4096, NULL, 10, NULL);
 
     xTaskCreate(network_task, "network_task", 4096, NULL, 10, NULL);
     xTaskCreate(mqtt_task, "mqtt_task", 4096, NULL, 10, NULL);

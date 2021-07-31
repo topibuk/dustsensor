@@ -5,7 +5,7 @@
 #include "driver/gpio.h"
 #include "driver/uart.h"
 
-#include "dust_sensor.h"
+#include "pms7003.h"
 
 #define DUST_RX_BUF_SIZE UART_FIFO_LEN * 2
 #define DUST_TX_BUF_SIZE 0

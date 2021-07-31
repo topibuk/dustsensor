@@ -2,8 +2,6 @@
 #include "esp_log.h"
 #define LOG_TAG "TASK: pressure"
 
-#include "bmp.h"
-
 #include "dust_sensor.h"
 
 #define BMP_MAX_FAILS 20

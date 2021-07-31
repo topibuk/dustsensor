@@ -23,7 +23,21 @@ extern EventGroupHandle_t eg_app_status;
 
 #define SEMAPHORE_TIMEOUT 2000 // microseconds
 
+#define DUST_PIN_RX GPIO_NUM_16
+#define DUST_PIN_TX GPIO_NUM_17
+
+#define DUST_TASK_DELAY 10000 //microseconds
+
+struct dust_values_s
+{
+    uint16_t pm25;
+    uint16_t pm100;
+    uint8_t updated;
+    SemaphoreHandle_t lock;
+} dust_values;
+
 void co2_sensor_task();
+void dust_sensor_task();
 void bmp280_task();
 void network_task();
 void mqtt_task();
